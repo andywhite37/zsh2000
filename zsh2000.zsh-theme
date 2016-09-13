@@ -51,7 +51,7 @@ prompt_user_hostname() {
   local user=`whoami`
 
   if [[ "$user" != "$ZSH_2000_DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)$user@%m"
+    prompt_segment white black "%(!.%{%F{yellow}%}.)$user@%m"
   fi
 }
 
@@ -60,13 +60,16 @@ prompt_git() {
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null)
+    if [[ $ref = "" ]]; then
+      ref=$(git rev-parse --short HEAD 2> /dev/null)
+    fi
     if [[ -n $dirty ]]; then
-      prompt_segment magenta black
+      prompt_segment red black
     else
       prompt_segment green black
     fi
     if [ "$ZSH_2000_DISABLE_GIT_STATUS" != "true" ];then
-      #echo -n "\ue0a0 ${ref/refs\/heads\//}$dirty"$(git_prompt_status)
+      echo -n "\ue0a0 ${ref/refs\/heads\//}$dirty"$(git_prompt_status)
     else
       echo -n "\ue0a0 ${ref/refs\/heads\//}$dirty"
     fi
@@ -84,7 +87,8 @@ prompt_dir() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{yellow}%}✖"
+  #echo "prompt_status $RETVAL $UID $(jobs -l | wc -l)"
+  [[ $RETVAL != 0 ]] && symbols+="%{%F{yellow}%}✖ $RETVAL"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
 
@@ -104,8 +108,9 @@ prompt_rvm() {
 }
 
 build_prompt() {
+  RETVAL=$?
+  #echo "build_prompt $? $RETVAL"
   if [ "$ZSH_2000_DISABLE_STATUS" != 'true' ];then
-    RETVAL=$?
     prompt_status
   fi
   prompt_user_hostname
