@@ -15,6 +15,11 @@ ZSH_THEME_GIT_PROMPT_AHEAD=' ⬆'
 ZSH_THEME_GIT_PROMPT_BEHIND=' ⬇'
 ZSH_THEME_GIT_PROMPT_DIRTY=' ±'
 
+# new vars
+#ZSH_THEME_GIT_PROMPT_EQUAL_REMOTE=' ⬇'
+ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE=' ⬆'
+ZSH_THEME_GIT_PROMPT_BEHIND_REMOTE=' ⬇'
+
 prompt_segment() {
   local bg fg
   [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
@@ -69,7 +74,7 @@ prompt_git() {
       prompt_segment green black
     fi
     if [ "$ZSH_2000_DISABLE_GIT_STATUS" != "true" ];then
-      echo -n "\ue0a0 ${ref/refs\/heads\//}$dirty"$(git_prompt_status)
+      echo -n "\ue0a0 ${ref/refs\/heads\//}$dirty"$(git_prompt_status)$(git_remote_status)
     else
       echo -n "\ue0a0 ${ref/refs\/heads\//}$dirty"
     fi
